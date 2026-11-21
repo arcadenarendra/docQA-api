@@ -1,11 +1,10 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import routes from './routes';
 
-const app = express();
-app.use(bodyParser.json());
-app.use(cors());
-app.use(routes);
+import 'dotenv/config';
 
-export default app;
+import app from './app.js';
+
+const PORT = Number(process.env.PORT) || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});

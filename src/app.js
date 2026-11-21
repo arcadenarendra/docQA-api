@@ -1,10 +1,25 @@
-import app from './app';
-const PORT = process.env.PORT || 3000;
 
-app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok' });
-}
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-}); 
+import healthRoutes from './routes/health.routes.js';
+import errorHandler from './middleware/error.middleware.js';
+
+const app = express();
+
+app.use(helmet());
+app.use(cors());
+app.use(express.json({ limit: '1mb' }));
+
+app.use('/health', healthRoutes);
+
+app.use((req, res, next) => {
+    const error = new Error('Route not found');
+    error.statusCode = 404;
+    next(error);
+});
+
+app.use(errorHandler);
+
+export default app;
