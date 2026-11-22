@@ -31,3 +31,67 @@ export async function registerUser({ email, password }) {
 
     return result.rows[0];
 }
+
+
+import jwt from 'jsonwebtoken';
+import { comparePassword } from '../utils/password.js';
+
+
+export async function loginUser({ email, password }) {
+    const result = await pool.query(
+        `SELECT id, email, password_hash
+         FROM users
+         WHERE email = $1`,
+        [email]
+    );
+
+    const user = result.rows[0];
+
+    if (!user) {
+        const error = new Error('Invalid email or password');
+        error.statusCode = 401;
+        throw error;
+    }
+
+    const isPasswordValid = await comparePassword(
+        password,
+        user.password_hash
+    );
+
+    if (!isPasswordValid) {
+        const error = new Error('Invalid email or password');
+        error.statusCode = 401;
+        throw error;
+    }
+
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret || secret.length < 32) {
+        throw new Error('JWT_SECRET must be configured with at least 32 characters');
+    }
+
+    const token = jwt.sign(
+        { sub: user.id },
+        secret,
+        { expiresIn: '1h' }
+    );
+
+    return {
+        token,
+        user: {
+            id: user.id,
+            email: user.email
+        }
+    };
+}
+
+export async function getUserById(userId) {
+    const result = await pool.query(
+        `SELECT id, email, created_at
+         FROM users
+         WHERE id = $1`,
+        [userId]
+    );
+
+    return result.rows[0] || null;
+}

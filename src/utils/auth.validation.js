@@ -11,3 +11,14 @@ export const registerSchema = z.object({
         .min(8, 'Password must be at least 8 characters')
         .max(72, 'Password must not exceed 72 characters')
 });
+
+
+export const loginSchema = z.object({
+    email: z.string()
+        .trim()
+        .email('Please provide a valid email address'),
+
+    password: z.string()
+        .min(1, 'Password is required')
+        .max(72, 'Password is too long')
+});
