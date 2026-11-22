@@ -5,6 +5,7 @@ import helmet from 'helmet';
 
 import healthRoutes from './routes/health.routes.js';
 import errorHandler from './middleware/error.middleware.js';
+import authRoutes from './routes/auth.routes.js';
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json({ limit: '1mb' }));
 
 app.use('/health', healthRoutes);
 
+app.use('/api/auth', authRoutes);
 app.use((req, res, next) => {
     const error = new Error('Route not found');
     error.statusCode = 404;
