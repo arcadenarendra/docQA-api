@@ -1,6 +1,6 @@
-
 import { pool } from '../db/pool.js';
-import { hashPassword } from '../utils/password.js';
+import { hashPassword, comparePassword } from '../utils/password.js';
+import jwt from 'jsonwebtoken';
 
 export async function registerUser({ email, password }) {
     const existingUser = await pool.query(
@@ -31,10 +31,6 @@ export async function registerUser({ email, password }) {
 
     return result.rows[0];
 }
-
-
-import jwt from 'jsonwebtoken';
-import { comparePassword } from '../utils/password.js';
 
 
 export async function loginUser({ email, password }) {
