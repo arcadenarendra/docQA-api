@@ -21,7 +21,7 @@ export async function retry(
     operation,
     {
         retries = 3,
-        initialDelay = 1000
+        initialDelay = 2000
     } = {}
 ) {
     let lastError;

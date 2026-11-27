@@ -220,3 +220,50 @@ export async function saveDocumentWithChunks(
         client.release();
     }
 }
+
+
+export async function searchSimilarChunks(
+    userId,
+    queryEmbedding,
+    { limit = 5 } = {}
+) {
+    if (!userId) {
+        throw new Error('User ID is required');
+    }
+
+    if (
+        !Array.isArray(queryEmbedding) ||
+        queryEmbedding.length !== env.EMBEDDING_DIM ||
+        !queryEmbedding.every(Number.isFinite)
+    ) {
+        throw new Error('Invalid query embedding');
+    }
+
+    if (!Number.isInteger(limit) || limit < 1 || limit > 20) {
+        throw new Error('Limit must be between 1 and 20');
+    }
+
+    const vector = `[${queryEmbedding.join(',')}]`;
+
+    const result = await pool.query(
+        `SELECT
+            dc.id AS chunk_id,
+            dc.document_id,
+            dc.chunk_index,
+            dc.content,
+            d.original_name,
+            1 - (dc.embedding <=> $2::public.vector)
+                AS similarity
+         FROM document_chunks dc
+         INNER JOIN documents d
+            ON d.id = dc.document_id
+         WHERE d.user_id = $1
+           AND d.status = 'completed'
+         ORDER BY dc.embedding <=> $2::public.vector
+         LIMIT $3`,
+        [userId, vector, limit]
+    );
+
+    return result.rows;
+}
+

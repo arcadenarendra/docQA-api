@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 
+import questionRoutes from './routes/question.routes.js';
 import healthRoutes from './routes/health.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import errorHandler from './middleware/error.middleware.js';
@@ -19,6 +20,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use('/health', healthRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/documents', documentRoutes);
+app.use('/api/v1/questions', questionRoutes);
 
 // 404 handler
 app.use((req, res, next) => {
